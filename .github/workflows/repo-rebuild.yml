@@ -1,0 +1,22 @@
+name: Trigger L-U-M-E-N repository rebuild
+
+on:
+  release:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: L-U-M-E-N repository rebuild
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.REPO_REBUILD_PAT }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+            owner: 'L-U-M-E-N',
+            repo: 'lumen-repository',
+            workflow_id: 23424596,
+            ref: 'main'
+          });

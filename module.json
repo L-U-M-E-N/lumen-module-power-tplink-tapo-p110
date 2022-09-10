@@ -1,0 +1,16 @@
+{
+	"name": "emptyModel",
+	"fullName": "L.U.M.E.N. empty model",
+	"author": "Elanis",
+	"version": "1.0.0",
+	"dependencies": {},
+	"desktop": {
+		"module": true,
+		"window": false
+	},
+	"mobile": {
+		"module": false,
+		"window": false
+	},
+	"config": {}
+}
