@@ -28,7 +28,7 @@ console.log(config);
 				AppDataManager.saveObject(
 					'power-tplink-tapo-p110',
 					`${ip}--${Date.now()}`,
-					data.toString().replaceAll('\'', '"'));
+					JSON.parse(data.toString().replaceAll('\'', '"')));
 
 				resolve();
 			});
