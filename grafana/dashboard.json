@@ -9,17 +9,18 @@
       "pluginName": "PostgreSQL"
     }
   ],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.7.6"
+      "version": "9.3.6"
     },
     {
       "type": "panel",
       "id": "graph",
-      "name": "Graph",
+      "name": "Graph (old)",
       "version": ""
     },
     {
@@ -32,28 +33,48 @@
   "annotations": {
     "list": [
       {
+        "$$hashKey": "object:424",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_LUMEN}",
+      "datasource": {
+        "type": "postgres",
+        "uid": "${DS_LUMEN}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -78,9 +99,10 @@
       "linewidth": 1,
       "nullPointMode": "null as zero",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -90,11 +112,16 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "ip",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  ip as metric,\n  value AS \"value\"\nFROM power_history_hourly\nWHERE\n  $__timeFilter(date)\nORDER BY 1,2",
+          "rawSql": "SELECT\n  date AS \"time\",\n  'Serveur + Balise VR #1' as metric,\n  value AS \"value\"\nFROM power_history_hourly\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date)\nORDER BY 1,2",
           "refId": "A",
           "select": [
             [
@@ -112,6 +139,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "power_history_hourly",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -122,12 +166,40 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  date AS \"time\",\r\n  'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_hourly\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date)\r\nORDER BY 1,2",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "thresholds": [],
       "timeFrom": "30d",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Per hour - 30d",
       "tooltip": {
         "shared": true,
@@ -136,33 +208,26 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:91",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:92",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -170,7 +235,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_LUMEN}",
+      "datasource": {
+        "type": "postgres",
+        "uid": "${DS_LUMEN}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -195,9 +269,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -207,11 +282,16 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "ip",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  ip as metric,\n  value AS \"value\"\nFROM power_history_daily\nWHERE\n  $__timeFilter(date)\nORDER BY 1,2",
+          "rawSql": "SELECT\n  date AS \"time\",\n 'Serveur + Balise VR #1' metric,\n  value AS \"value\"\nFROM power_history_daily\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date)\nORDER BY 2,1",
           "refId": "A",
           "select": [
             [
@@ -229,6 +309,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "power_history_hourly",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -239,12 +336,40 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  date AS \"time\",\r\n   'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_daily\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date)\r\nORDER BY 2,1",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "thresholds": [],
       "timeFrom": "6M",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Per day - 6 months",
       "tooltip": {
         "shared": true,
@@ -253,33 +378,26 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:91",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:92",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -287,7 +405,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_LUMEN}",
+      "datasource": {
+        "type": "postgres",
+        "uid": "${DS_LUMEN}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -312,9 +439,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -324,11 +452,16 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "ip",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  ip as metric,\n  value AS \"value\"\nFROM power_history_monthly\nWHERE\n  $__timeFilter(date) AND date > '2022-08-01'\nORDER BY 1,2",
+          "rawSql": "SELECT\n  date AS \"time\",\n  'Serveur + Balise VR #1' AS metric,\n  value AS \"value\"\nFROM power_history_monthly\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date) AND date > '2022-08-01'\nORDER BY 2,1",
           "refId": "A",
           "select": [
             [
@@ -346,6 +479,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "power_history_hourly",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -356,12 +506,40 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_LUMEN}"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  date AS \"time\",\r\n  'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_monthly\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date) AND date > '2022-08-01'\r\nORDER BY 2,1",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "thresholds": [],
       "timeFrom": "2y",
       "timeRegions": [],
-      "timeShift": null,
       "title": "Per month - 2y",
       "tooltip": {
         "shared": true,
@@ -370,37 +548,31 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
+          "$$hashKey": "object:91",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:92",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
-  "schemaVersion": 22,
+  "refresh": false,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -427,8 +599,6 @@
   "timezone": "",
   "title": "Power",
   "uid": "16Tli7H4z",
-  "variables": {
-    "list": []
-  },
-  "version": 10
+  "version": 3,
+  "weekStart": ""
 }
