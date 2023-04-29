@@ -88,27 +88,6 @@ export default class TpLinkP110PowerStatsSubmitter {
 						}
 					);
 
-					//// PAST 7d
-					const past7d = parsedContent.result.past7d;
-					past7d.pop(); // Remove "today"
-					const past7dData = past7d.flat().reverse();
-					date = new Date(Date.parse(parsedContent.result.local_time.split(' ')[0] + ' 23:30', { setZone: true, zone: 'Europe/Paris' }))
-					date.setDate(date.getDate() - 1);
-
-					await TpLinkP110PowerStatsSubmitter.pushData(
-						past7dData,
-						date,
-						'hourly',
-						(currDate) => {
-							currDate.setHours(currDate.getHours() - 1);
-							return currDate
-						}, {
-							ip: file.split('--')[0],
-							source: file,
-							type: 'past7d'
-						}
-					);
-
 					//// PAST 30d
 					const past30dData = parsedContent.result.past30d.reverse();
 					// Remove first element as it's probably an unfinished day
