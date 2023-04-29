@@ -61,7 +61,7 @@ console.log(config);
 						past1y: monthly.result.data,
 						past7d: [],
 					},
-					error_code: null,
+					error_code: genericData.error_code + hourly.error_code + daily.error_code + monthly.error_code,
 				};
 
 				//console.log(reformattedData);
