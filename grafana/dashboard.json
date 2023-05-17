@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.3.6"
+      "version": "9.5.1"
     },
     {
       "type": "panel",
@@ -28,6 +28,12 @@
       "id": "postgres",
       "name": "PostgreSQL",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
     }
   ],
   "annotations": {
@@ -102,7 +108,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "9.5.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -231,55 +237,83 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "postgres",
         "uid": "${DS_LUMEN}"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 22,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 14,
         "w": 16,
         "x": 0,
         "y": 9
       },
-      "hiddenSeries": false,
       "hideTimeOverride": false,
       "id": 3,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "9.3.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
@@ -291,7 +325,7 @@
           "group": [],
           "metricColumn": "ip",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n 'Serveur + Balise VR #1' metric,\n  value AS \"value\"\nFROM power_history_daily\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date)\nORDER BY 2,1",
+          "rawSql": "SELECT DISTINCT\n  date::date AS \"time\",\n 'Serveur + Balise VR #1' metric,\n  value AS \"value\"\nFROM power_history_daily\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date)\nORDER BY 2,1",
           "refId": "A",
           "select": [
             [
@@ -346,7 +380,7 @@
           "format": "time_series",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  date AS \"time\",\r\n   'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_daily\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date)\r\nORDER BY 2,1",
+          "rawSql": "SELECT\r\n  date::date AS \"time\",\r\n   'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_daily\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date)\r\nORDER BY 2,1",
           "refId": "B",
           "sql": {
             "columns": [
@@ -367,89 +401,90 @@
           }
         }
       ],
-      "thresholds": [],
       "timeFrom": "6M",
-      "timeRegions": [],
       "title": "Per day - 6 months",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:91",
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:92",
-          "format": "short",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "postgres",
         "uid": "${DS_LUMEN}"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 14,
         "w": 8,
         "x": 16,
         "y": 9
       },
-      "hiddenSeries": false,
       "hideTimeOverride": false,
       "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "9.3.6",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
@@ -461,7 +496,7 @@
           "group": [],
           "metricColumn": "ip",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  'Serveur + Balise VR #1' AS metric,\n  value AS \"value\"\nFROM power_history_monthly\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date) AND date > '2022-08-01'\nORDER BY 2,1",
+          "rawSql": "SELECT\n  date::date AS \"time\",\n  'Serveur + Balise VR #1' AS metric,\n  value AS \"value\"\nFROM power_history_monthly\nWHERE\n  (ip = '192.168.0.40' OR ip = '192.168.0.41') AND\n  $__timeFilter(date) AND date > '2022-08-01'\nORDER BY 2,1",
           "refId": "A",
           "select": [
             [
@@ -516,7 +551,7 @@
           "format": "time_series",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  date AS \"time\",\r\n  'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_monthly\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date) AND date > '2022-08-01'\r\nORDER BY 2,1",
+          "rawSql": "SELECT\r\n  date::date AS \"time\",\r\n  'Bureau: PC + 4 Ecrans + TV + Audio + Casque VR + Chargeurs Divers + Balise VR #2' AS metric,\r\n  value AS \"value\"\r\nFROM power_history_monthly\r\nWHERE\r\n  ip = '192.168.0.46' AND\r\n  $__timeFilter(date) AND date > '2022-08-01'\r\nORDER BY 2,1",
           "refId": "B",
           "sql": {
             "columns": [
@@ -537,42 +572,13 @@
           }
         }
       ],
-      "thresholds": [],
       "timeFrom": "2y",
-      "timeRegions": [],
       "title": "Per month - 2y",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:91",
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:92",
-          "format": "short",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 37,
+  "refresh": "",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -599,6 +605,6 @@
   "timezone": "",
   "title": "Power",
   "uid": "16Tli7H4z",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
