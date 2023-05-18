@@ -34,7 +34,7 @@ console.log(config);
 		await new Promise((resolve, reject) => {
 			// Yeaaap, this is ugly, but I tried to rewrite python module as JS Code, and failed, so, let's get lazy
 			const pythonProcess = child_process.spawn('python', [__dirname + '/getData.py', ip, username, password, start.getTime() / 1000, end.getTime() / 1000]);
-			pythonProcess.stdout.on('data', (data) => {
+			pythonProcess.stdout.on('data', async(data) => {
 				//console.log(data.toString());
 
 				const results = data.toString().replaceAll('\'', '"').replace('\r', '').split('\n');
@@ -66,7 +66,7 @@ console.log(config);
 
 				//console.log(reformattedData);
 
-				AppDataManager.saveObject(
+				await AppDataManager.saveObject(
 					'power-tplink-tapo-p110',
 					`${ip}--${Date.now()}`,
 					reformattedData);
