@@ -48,7 +48,4 @@ p110.login() #Sends credentials to the plug and creates AES Key and IV for furth
 
 #PyP110 has all PyP100 functions and additionally allows to query energy usage infos
 #print(p110.getEnergyUsage()) #Returns dict with all the energy usage
-print(p110.getEnergyUsage()) 
-print(p110.getEnergyData(int(sys.argv[4]), int(sys.argv[5]), 43200)) 
-print(p110.getEnergyData(int(sys.argv[4]), int(sys.argv[5]), 1440)) 
-print(p110.getEnergyData(int(sys.argv[4]), int(sys.argv[5]), 60)) 
+print(p110.getEnergyData(int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6])));

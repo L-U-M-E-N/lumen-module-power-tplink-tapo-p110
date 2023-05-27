@@ -35,100 +35,71 @@ export default class TpLinkP110PowerStatsSubmitter {
 			log('Saving power status', 'info');
 
 			const fileList = (await Database.execQuery('SELECT name FROM power_files_history')).rows;
-			for(const file of (await readdir(config['dataFolder']))) {
-				if(fileList.map((x) => x.name).includes(file)) {
+			for(const fileName of (await readdir(config['dataFolder']))) {
+				if(fileList.map((x) => x.name).includes(fileName)) {
 					continue;
 				}
 
-				log('Loading file ...' + file);
+				log('Loading file ...' + fileName);
 
-				const content = await readFile(path.join(config['dataFolder'], file));
+				const content = await readFile(path.join(config['dataFolder'], fileName));
 				const parsedContent = JSON.parse(content);
-
-				if(parsedContent.error_code !== 0) {
-					log('non-zero error code', 'warn');
-					continue;
-				}
 
 				try {
 					await Database.execQuery('BEGIN TRANSACTION');
 
 					// Save file to db
 					const [fileQuery, fileValues] = Database.buildInsertQuery('power_files_history', {
-						name: file,
+						name: fileName,
 						content
 					});
-
-					await Database.execQuery(
-						fileQuery,
-						fileValues
-					);
+					await Database.execQuery(fileQuery, fileValues);
 
 					// Save data to db
-					const fileDate = new Date(Date.parse(parsedContent.result.local_time, { setZone: true, zone: 'Europe/Paris' }));
-
-					//// PAST 24h
-					// Remove first element as it's probably an unfinished hour
-					let date = new Date(fileDate);
-					const past24Data = parsedContent.result.past24h.reverse();
-					past24Data.shift();
-					date.setHours(date.getHours() - 1);
-
-					await TpLinkP110PowerStatsSubmitter.pushData(
-						past24Data,
-						date,
-						'hourly',
-						(currDate) => {
-							currDate.setHours(currDate.getHours() - 1);
-							return currDate
-						}, {
-							ip: file.split('--')[0],
-							source: file,
-							type: 'past24h'
-						}
-					);
-
-					//// PAST 30d
-					const past30dData = parsedContent.result.past30d.reverse();
-					// Remove first element as it's probably an unfinished day
-					past30dData.shift();
-					date = new Date(fileDate);
-					date.setDate(date.getDate() - 1);
-
-					await TpLinkP110PowerStatsSubmitter.pushData(
-						past30dData,
-						date,
-						'daily',
-						(currDate) => {
-							currDate.setDate(currDate.getDate() - 1);
-							return currDate
-						}, {
-							ip: file.split('--')[0],
-							source: file,
-							type: 'past30d'
-						}
-					);
-
-					//// PAST 1y
-					const past1yData = parsedContent.result.past1y.reverse();
-					// Remove first element as it's probably an unfinished day
-					past1yData.shift();
-					date = new Date(fileDate);
-					date.setMonth(date.getMonth() - 1);
-
-					await TpLinkP110PowerStatsSubmitter.pushData(
-						past1yData,
-						date,
-						'monthly',
-						(currDate) => {
-							currDate.setMonth(currDate.getMonth() - 1);
-							return currDate
-						}, {
-							ip: file.split('--')[0],
-							source: file,
-							type: 'past1y'
-						}
-					);
+					const date = new Date(parsedContent.from);
+					if(fileName.includes('-hourly-')) {
+						await TpLinkP110PowerStatsSubmitter.pushData(
+							parsedContent.data,
+							date,
+							'hourly',
+							(currDate) => {
+								currDate.setHours(currDate.getHours() + 1);
+								return currDate
+							}, {
+								ip: fileName.split('-')[0],
+								source: fileName,
+								type: 'hourly'
+							}
+						);
+					} else if(fileName.includes('-daily-')) {
+						await TpLinkP110PowerStatsSubmitter.pushData(
+							parsedContent.data,
+							date,
+							'daily',
+							(currDate) => {
+								currDate.setDate(currDate.getDate() + 1);
+								return currDate
+							}, {
+								ip: fileName.split('-')[0],
+								source: fileName,
+								type: 'daily'
+							}
+						);
+					} else if(fileName.includes('-monthly-')) {
+						await TpLinkP110PowerStatsSubmitter.pushData(
+							parsedContent.data,
+							date,
+							'monthly',
+							(currDate) => {
+								currDate.setMonth(currDate.getMonth() + 1);
+								return currDate
+							}, {
+								ip: fileName.split('-')[0],
+								source: fileName,
+								type: 'monthly'
+							}
+						);
+					}
 
 					await Database.execQuery('COMMIT');
 				} catch(e) {
