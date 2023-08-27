@@ -2,8 +2,9 @@ import child_process from 'child_process';
 import fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+const MODULE_NAME = 'power-tplink-tapo-p110';
 
-const config = ConfigManager.get('power-tplink-tapo-p110', 'credentials');
+const config = ConfigManager.get(MODULE_NAME, 'credentials');
 const ips = config.ips;
 const username = config.username;
 const password = config.password;
@@ -57,70 +58,91 @@ async function getData(ip, start, end, interval) {
 (async() => {
 	console.log('Loading power data ...');
 
-	const latestMidnight = new Date(Date.now());
-	latestMidnight.setHours(0);
-	latestMidnight.setMinutes(0);
-	latestMidnight.setSeconds(0);
-	latestMidnight.setMilliseconds(0);
+	let iteratorDate = new Date(Date.now());
+	iteratorDate.setHours(0);
+	iteratorDate.setMinutes(0);
+	iteratorDate.setSeconds(0);
+	iteratorDate.setMilliseconds(0);
 
-	
-	for(const ip of ips) {
-		console.log('Loading power data ...', ip);
+	for(let i = 0; i < 7; i++) {
+		if(i !== 0) {
+			iteratorDate = new Date(iteratorDate.getTime() - (INTERVAL_DAILY * MIN_TO_MS));
+		}
 
-		///////////////////////////////////
-		//// Hourly data
-		const pastMidnight = new Date(latestMidnight.getTime() - (INTERVAL_DAILY * MIN_TO_MS));
-		const hourly = await getData(ip, pastMidnight, latestMidnight, INTERVAL_HOURLY);
+		console.log(`Loading power data for ${iteratorDate.toISOString()} ...`);
+		
+		for(const ip of ips) {
+			console.log('Loading power data ...', ip);
 
-		// Save to ip-hourly-from-to.json
-		await AppDataManager.saveObject(
-			'power-tplink-tapo-p110',
-			`${ip}-hourly-${pastMidnight.getTime()}-${latestMidnight.getTime()}`, {
-			from: pastMidnight.getTime(),
-			to: latestMidnight.getTime(),
-			interval: INTERVAL_HOURLY,
-			data: hourly.result.data
-		});
+			const currentDateMidnight = new Date(iteratorDate.getTime());
 
-		///////////////////////////////////
-		//// Daily data
-		const firstOfMonthMidnight = new Date(latestMidnight.getTime());
-		firstOfMonthMidnight.setDate(1);
-		const daily = await getData(ip, firstOfMonthMidnight, latestMidnight, INTERVAL_DAILY);
-		daily.result.start_timestamp_eq_date = new Date(daily.result.start_timestamp * 1000);
-		daily.result.end_timestamp_eq_date = new Date(daily.result.end_timestamp * 1000);
+			///////////////////////////////////
+			//// Hourly data
+			const pastMidnight = new Date(currentDateMidnight.getTime() - (INTERVAL_DAILY * MIN_TO_MS));
+			let fileName = `${ip}-hourly-${pastMidnight.getTime()}-${currentDateMidnight.getTime()}`;
 
+			if(!(await AppDataManager.exists(MODULE_NAME, fileName))) {
+				const hourly = await getData(ip, pastMidnight, currentDateMidnight, INTERVAL_HOURLY);
 
-		// Save to ip-daily-from-to.json
-		await AppDataManager.saveObject(
-			'power-tplink-tapo-p110',
-			`${ip}-daily-${firstOfMonthMidnight.getTime()}-${latestMidnight.getTime()}`, {
-			from: firstOfMonthMidnight.getTime(),
-			to: latestMidnight.getTime(),
-			interval: INTERVAL_DAILY,
-			data: daily.result.data.slice(0, (latestMidnight.getTime() - firstOfMonthMidnight.getTime()) / (INTERVAL_DAILY * MIN_TO_MS))
-		});
+				// Save to ip-hourly-from-to.json
+				await AppDataManager.saveObject(
+					MODULE_NAME,
+					fileName, {
+					from: pastMidnight.getTime(),
+					to: currentDateMidnight.getTime(),
+					interval: INTERVAL_HOURLY,
+					data: hourly.result.data
+				});
+			}
 
-		///////////////////////////////////
-		//// Monthly data
-		const firstOfYearMidnight = new Date(latestMidnight.getTime());
-		firstOfYearMidnight.setDate(1);
-		firstOfYearMidnight.setMonth(0);
-		const monthly = await getData(ip, firstOfYearMidnight, latestMidnight, INTERVAL_MONTHLY);
-		monthly.result.start_timestamp_eq_date = new Date(monthly.result.start_timestamp * 1000);
-		monthly.result.end_timestamp_eq_date = new Date(monthly.result.end_timestamp * 1000);
+			///////////////////////////////////
+			//// Daily data
+			const firstOfMonthMidnight = new Date(currentDateMidnight.getTime());
+			firstOfMonthMidnight.setDate(1);
+			fileName = `${ip}-daily-${firstOfMonthMidnight.getTime()}-${currentDateMidnight.getTime()}`;
+
+			if(!(await AppDataManager.exists(MODULE_NAME, fileName))) {
+				const daily = await getData(ip, firstOfMonthMidnight, currentDateMidnight, INTERVAL_DAILY);
+				daily.result.start_timestamp_eq_date = new Date(daily.result.start_timestamp * 1000);
+				daily.result.end_timestamp_eq_date = new Date(daily.result.end_timestamp * 1000);
 
 
-		// Save to ip-monthly-from-to.json
-		await AppDataManager.saveObject(
-			'power-tplink-tapo-p110',
-			`${ip}-monthly-${firstOfYearMidnight.getTime()}-${latestMidnight.getTime()}`, {
-			from: firstOfYearMidnight.getTime(),
-			to: latestMidnight.getTime(),
-			interval: INTERVAL_MONTHLY,
-			data: monthly.result.data.slice(0, (latestMidnight.getTime() - firstOfYearMidnight.getTime()) / (INTERVAL_MONTHLY * MIN_TO_MS))
-		});
+				// Save to ip-daily-from-to.json
+				await AppDataManager.saveObject(
+					MODULE_NAME,
+					fileName, {
+					from: firstOfMonthMidnight.getTime(),
+					to: currentDateMidnight.getTime(),
+					interval: INTERVAL_DAILY,
+					data: daily.result.data.slice(0, (currentDateMidnight.getTime() - firstOfMonthMidnight.getTime()) / (INTERVAL_DAILY * MIN_TO_MS))
+				});
+			}
+
+			///////////////////////////////////
+			//// Monthly data
+			const firstOfYearMidnight = new Date(currentDateMidnight.getTime());
+			firstOfYearMidnight.setDate(1);
+			firstOfYearMidnight.setMonth(0);
+			fileName = `${ip}-monthly-${firstOfYearMidnight.getTime()}-${currentDateMidnight.getTime()}`;
+
+			if(!(await AppDataManager.exists(MODULE_NAME, fileName))) {
+				const monthly = await getData(ip, firstOfYearMidnight, currentDateMidnight, INTERVAL_MONTHLY);
+				monthly.result.start_timestamp_eq_date = new Date(monthly.result.start_timestamp * 1000);
+				monthly.result.end_timestamp_eq_date = new Date(monthly.result.end_timestamp * 1000);
+
+
+				// Save to ip-monthly-from-to.json
+				await AppDataManager.saveObject(
+					MODULE_NAME,
+					fileName, {
+					from: firstOfYearMidnight.getTime(),
+					to: currentDateMidnight.getTime(),
+					interval: INTERVAL_MONTHLY,
+					data: monthly.result.data.slice(0, (currentDateMidnight.getTime() - firstOfYearMidnight.getTime()) / (INTERVAL_MONTHLY * MIN_TO_MS))
+				});
+			}
+		}
+
+		console.log('Loaded power data !');
 	}
-
-	console.log('Loaded power data !')
 })();
