@@ -91,7 +91,7 @@ async function getData(ip, start, end, interval) {
 					from: pastMidnight.getTime(),
 					to: currentDateMidnight.getTime(),
 					interval: INTERVAL_HOURLY,
-					data: hourly.result.data
+					data: hourly.data
 				});
 			}
 
@@ -103,8 +103,8 @@ async function getData(ip, start, end, interval) {
 
 			if(!(await AppDataManager.exists(MODULE_NAME, fileName))) {
 				const daily = await getData(ip, firstOfMonthMidnight, currentDateMidnight, INTERVAL_DAILY);
-				daily.result.start_timestamp_eq_date = new Date(daily.result.start_timestamp * 1000);
-				daily.result.end_timestamp_eq_date = new Date(daily.result.end_timestamp * 1000);
+				daily.start_timestamp_eq_date = new Date(daily.start_timestamp * 1000);
+				daily.end_timestamp_eq_date = new Date(daily.end_timestamp * 1000);
 
 
 				// Save to ip-daily-from-to.json
@@ -114,7 +114,7 @@ async function getData(ip, start, end, interval) {
 					from: firstOfMonthMidnight.getTime(),
 					to: currentDateMidnight.getTime(),
 					interval: INTERVAL_DAILY,
-					data: daily.result.data.slice(0, (currentDateMidnight.getTime() - firstOfMonthMidnight.getTime()) / (INTERVAL_DAILY * MIN_TO_MS))
+					data: daily.data.slice(0, (currentDateMidnight.getTime() - firstOfMonthMidnight.getTime()) / (INTERVAL_DAILY * MIN_TO_MS))
 				});
 			}
 
@@ -127,8 +127,8 @@ async function getData(ip, start, end, interval) {
 
 			if(!(await AppDataManager.exists(MODULE_NAME, fileName))) {
 				const monthly = await getData(ip, firstOfYearMidnight, currentDateMidnight, INTERVAL_MONTHLY);
-				monthly.result.start_timestamp_eq_date = new Date(monthly.result.start_timestamp * 1000);
-				monthly.result.end_timestamp_eq_date = new Date(monthly.result.end_timestamp * 1000);
+				monthly.start_timestamp_eq_date = new Date(monthly.start_timestamp * 1000);
+				monthly.end_timestamp_eq_date = new Date(monthly.end_timestamp * 1000);
 
 
 				// Save to ip-monthly-from-to.json
@@ -138,7 +138,7 @@ async function getData(ip, start, end, interval) {
 					from: firstOfYearMidnight.getTime(),
 					to: currentDateMidnight.getTime(),
 					interval: INTERVAL_MONTHLY,
-					data: monthly.result.data.slice(0, (currentDateMidnight.getTime() - firstOfYearMidnight.getTime()) / (INTERVAL_MONTHLY * MIN_TO_MS))
+					data: monthly.data.slice(0, (currentDateMidnight.getTime() - firstOfYearMidnight.getTime()) / (INTERVAL_MONTHLY * MIN_TO_MS))
 				});
 			}
 		}
